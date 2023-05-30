@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>report data</title>
+    
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+    </head>
+    {% include 'superadmin_default.html' %}
+     {% block content %}
+     
+    <body>
+     
+    <!-- <h5 style="background-color: black;padding: 10px;"> 
+      <a href="/homepage/" style="margin-left: 10px;color: white;padding: 20px;">Back</a>
+      <a href="/login/" style="margin-left: 990px;color: white;">Logout</a>
+      </h5>
+   -->
+      
+    <form method="POST">
+      {% csrf_token %}
+      <center><h2>Report Details</h2></center><br>
+    <center>
+    <label>FROM</label>
+    <input type="date" name="datef" id="start-date" required/>
+    <label>To</label>
+    <input type="date" name="datet" id="end-date" required/>
+    <button type="submit" class="btn btn-warning btn-sm">Search</button>
+    </center>
+  </form>
+
+    <div>
+      <form method="POST">
+        {% csrf_token %}
+      <select id="parentDropdown" name='parentValue' onchange="populateDependentDropdown()">
+        <option value='all' name='parentValue'>All</option>
+        {% for i in people%}
+            <option  value="{{ i.0}}">{{ i.1 }}</option>
+        {% endfor %}
+    </select>
+    
+    <select id="dependentDropdown" name='dependValue' style='display:none'>
+        <!-- Dependent dropdown options will be populated dynamically -->
+    </select>
+    <button type="submit" style='background-color:#66e0ff;'>Search</button>
+  </form>
+  </div>
+  <br>
+
+    <h2 style='display:none' id='msg'>No Data Available</h2>
+    <table  id="example" class="display" style='display:block'>
+        <thead class="bg-primary" id="Wx">
+          <tr >
+            <th class="text-center"  >Client Name</th>
+            <th class="text-center"  >Campaign Name</th>
+            <th class="text-center"  >Date</th>
+            <th class="text-center"  >NO OF IMPRESSIONS</th>
+            <th class="text-center" >NO OF CLICKS</th>
+            <th class="text-center" >COST PER IMPRESSIONS</th>
+            <th class="text-center" >COST PER CLICK</th>
+            <th class="text-center" >TOTAL COST PER IMPRESSIONS</th>
+            <th class="text-center" >TOTAL COST PER CLICKS</th>
+            <th class="text-center" >TOTAL COST PER Day</th>
+            <th class="text-center">Status</th>
+            <th class="text-center">Action</th>
+
+          </tr>
+        </thead>
+        <tbody id="W">
+        
+        {% for i in rd %}
+        <tr style="font-size: 15px;">
+          <td>{{i.1}}</td>
+          <td>{{i.2}}</td>
+          <td style="width: 10%;">{{i.3}}</td>
+          <td>{{i.4}}</td>
+          <td>{{i.5}}</td>
+          <td>{{i.6}}</td>
+          <td>{{i.7}}</td>
+          <td>{{i.8}}</td>
+          <td>{{i.9}}</td>
+          <td>{{i.10}}</td>
+          {%if i.11 == 'Running' %}
+            <td style='font-size:15px;color:green'><b>{{i.11}}</td>
+          {%elif i.11 == 'Closed' %}
+            <td style='font-size:15px;color:red'><b>{{i.11}}</td>
+          {%else%}
+            <td style='font-size:15px;color:orange'><b>{{i.11}}</td>
+          {% endif %}
+          
+          <td style="width: 15%;">
+            <a href="/edit_report/{{i.0}}"><span class="btn btn-success">Edit</span></a>
+            <a href="/delete_report/{{i.0}}" class="btn btn-danger ml-3" onclick="return confirm('are you sure you want to delete ?')">Delete</a> 
+          </td>
+        </tr>
+        {% endfor %}
+    
+   
+        </tbody>
+      </table>
+      
+
+      <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+      <script>
+          
+      function populateDependentDropdown() {
+          var parentValue = document.getElementById('parentDropdown').value;
+          document.getElementById('dependentDropdown').style.display = 'inline-block'
+          if (parentValue === 'all'){
+            ocument.getElementById('dependentDropdown').value = Null
+          }
+          else{
+          // Make an AJAX request to fetch the dependent dropdown options
+          $.ajax({
+              url: '/fetch_dependent_options/',  // Replace with the URL that handles the AJAX request
+              method: 'GET',
+              data: { parentValue: parentValue },
+              success: function(response) {
+                  var dependentDropdown = document.getElementById('dependentDropdown');
+                  dependentDropdown.innerHTML = '';  // Clear previous options
+      
+                  // Parse the response as JSON
+                  var options = response;
+                  //console.log(options[0].campaign_name)
+      
+                  // Populate the dependent dropdown options
+                  for (var i = 0; i < options.length; i++) {
+                      var option = document.createElement('option');
+                      option.value = options[i].campaign_name;
+                      option.text = options[i].campaign_name
+                      dependentDropdown.appendChild(option);
+                  }
+              },
+              error: function() {
+                  // Handle error
+              }
+          });
+        }
+      }
+      
+  
+      
+      
+  </script>
+  <script src="https://ajax.googleapis/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script type="text/Javascript" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+  <script type="text/Javascript" src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+
+  <script>
+
+
+      
+      
+      //----------------------------------------------------------------
+
+
+     const startDateInput = document.getElementById("start-date");
+    const endDateInput = document.getElementById("end-date");
+
+startDateInput.addEventListener("change", () => {
+  const startDateValue = startDateInput.value;
+  endDateInput.min = startDateValue;
+});
+  var today = new Date().toISOString().split('T')[0];
+  document.getElementById("end-date").setAttribute("max", today);
+
+  console.log(document.getElementById("example").textContent)
+    $(document).ready(function () {
+      $('#example').DataTable();
+  });
+
+  
+</script>
+      
+      
+    {% endblock %}
+</body>
+</html>

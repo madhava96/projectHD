@@ -1,0 +1,3 @@
+1.user: Hotelmanager  pass:manager123
+2.user: Hoteladmin    pass:Admin123
+3.user: Receptionist  pass:reception123

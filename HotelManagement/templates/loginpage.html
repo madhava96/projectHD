@@ -1,0 +1,196 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>login</title>
+        <style>
+            * {
+                padding: 0px;
+                margin: 0px;
+            }
+            
+            body {
+                background-image: url("{% static '\\images\C.jpg' %}");
+                background-size: cover;
+            }
+            
+            header {
+                color: rgb(31, 7, 129);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                height: 15vh;
+                box-shadow: 5px 5px 10px rgb(0, 0, 0, 0.5);
+            }
+            
+            h1 {
+                letter-spacing: 0.5vw;
+                font-family: 'system-ui';
+                text-transform: uppercase;
+                text-align: center;
+            }
+            
+            main {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                height: 75vh;
+                width: 100%;
+            }
+            
+            .form_class {
+                width: 500px;
+                padding: 40px;
+                border-radius: 8px;
+                background-color: lightgrey;
+                opacity: 0.6;
+                font-family: 'system-ui';
+                box-shadow: 5px 5px 10px rgb(0, 0, 0, 0.3);
+            }
+            
+            .form_div {
+                text-transform: uppercase;
+            }
+            
+            .form_div>label {
+                letter-spacing: 3px;
+                font-size: 1rem;
+            }
+            
+            .info_div {
+                text-align: center;
+                margin-top: 20px;
+            }
+            
+            .info_div {
+                letter-spacing: 1px;
+            }
+            
+            .field_class {
+                width: 100%;
+                border-radius: 6px;
+                border-style: solid;
+                border-width: 1px;
+                padding: 5px 0px;
+                text-indent: 6px;
+                margin-top: 10px;
+                margin-bottom: 20px;
+                font-family: 'system-ui';
+                font-size: 0.9rem;
+                letter-spacing: 2px;
+            }
+            
+            .submit_class {
+                border-style: none;
+                border-radius: 5px;
+                background-color: #FFE6D4;
+                padding: 8px 20px;
+                font-family: 'system-ui';
+                text-transform: uppercase;
+                letter-spacing: .8px;
+                display: block;
+                margin: auto;
+                margin-top: 10px;
+                box-shadow: 2px 2px 5px rgb(0, 0, 0, 0.2);
+                cursor: pointer;
+            }
+            
+            footer {
+                height: 10vh;
+                color: rgb(4, 20, 55);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: -5px -5px 10px rgb(0, 0, 0, 0.3);
+            }
+            
+            footer>p {
+                text-align: center;
+                font-family: 'system-ui';
+                letter-spacing: 3px;
+            }
+            
+            footer>p>a {
+                text-decoration: none;
+                color: white;
+                font-weight: bold;
+            }
+            
+            .logo {
+                position: fixed;
+                height: auto;
+                left: 0;
+                width: 70px;
+            }
+            
+            .background {
+                position: fixed;
+                height: auto;
+                width: 250px;
+            }
+            
+            .time {
+                position: fixed;
+                height: auto;
+                right: 0;
+                width: 100px;
+                height: 20px;
+                text-align:center
+            }
+            #clock{
+                background-color:#33FFF9;
+                border:1px solid black
+            }
+            .submit_class:hover{
+                background-color: darkgreen;
+            }
+        </style>
+    </head>
+
+<body onload="startTime()">
+    <header>
+        <img src="{% static '\\images\LOGO1.png' %}" class="logo">
+        <h1><u>CICILY HOTEL</h1></u>
+            <div class="time">Time<br><span id='clock'></span></div>
+            <script>
+                function startTime() {
+                    const today = new Date();
+                    let h = today.getHours();
+                    let m = today.getMinutes();
+                    let s = today.getSeconds();
+                    m = checkTime(m);
+                    s = checkTime(s);
+                    document.getElementById('clock').innerHTML =  h + ":" + m + ":" + s;
+                    setTimeout(startTime, 1000);
+                  }
+                  
+                  function checkTime(i) {
+                    if (i < 10) {i = "0" + i};  // add zero in front of numbers < 10
+                    return i;
+                  }
+            </script>
+    </header>
+    <main method="GET">
+
+        <form id="login_form" class="form_class" method="POST">
+            {% csrf_token %}
+            <div class="form_div">
+                <label><b>User Name:</b></label>
+                <input class="field_class" name="username" type="text" placeholder="Enter User Name" required autofocus>
+                <label><b>Password:</b></label>
+                <input id="pass" class="field_class" name="password" type="password" required placeholder="Enter Password">
+                <button class="submit_class" type="submit"><b>LOGIN</b></button> {%if d == 'none'%}
+                <p>INVALID DETAILS</p>
+                {%endif%}
+            </div>
+
+        </form>
+
+    </main>
+
+    <footer>
+        <p>Book and stay with us, and you'll be happy to come back</p>
+    </footer>
+</body>
+
+</html>

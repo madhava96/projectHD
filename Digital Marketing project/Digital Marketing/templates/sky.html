@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>repot data</title>
+    
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+    </head>
+    {% include 'superadmin_default.html' %}
+     {% block content %}
+     
+    <body>
+     
+    <!-- <h5 style="background-color: black;padding: 10px;"> 
+      <a href="/homepage/" style="margin-left: 10px;color: white;padding: 20px;">Back</a>
+      <a href="/login/" style="margin-left: 990px;color: white;">Logout</a>
+      </h5>
+   -->
+      
+    <form method="POST">
+      {% csrf_token %}
+      <center><h2>Report Details</h2></center><br>
+    <center>
+    <label>FROM</label>
+            <input type="date" name="datef" id="start-date" required/>
+            <label>To</label>
+            <input type="date" name="datet" id="end-date" required/>
+            <button type="submit" class="btn btn-warning btn-sm">Search</button>
+          </center>
+
+    <div>
+      <select id="parentDropdown" onchange="populateDependentDropdown()">
+        <option value='all'>All</option>
+        {% for i in people%}
+            <option value="{{ i.0}}">{{ i.1 }}</option>
+        {% endfor %}
+    </select>
+    
+    
+    <select id="dependentDropdown" onchange="fetchData('','')" style='display:none'>
+        <!-- Dependent dropdown options will be populated dynamically -->
+
+    </select><br><br>
+  </div>
+  <div class="container-fluid">
+    <div >
+      <!---
+      <div >
+        <hr>
+        <label>From:</label>
+        <input type="date" name="fromdate">
+        <label >To:</label>
+        <input type="date" name="todate">
+        <input type="submit" value="search">
+        </hr>
+      </div>
+    -->
+    </div>
+    <h2 style='display:none' id='msg'>No Data Available</h2>
+    <table  id="example" class="display" style='display:block'>
+        <thead class="bg-primary" id="Wx">
+          <tr >
+            <th class="text-center"  >Client Name</th>
+            <th class="text-center"  >Campaign Name</th>
+            <th class="text-center"  >Date</th>
+            <th class="text-center"  >NO OF IMPRESSIONS</th>
+            <th class="text-center" >NO OF CLICKS</th>
+            <th class="text-center" >COST PER IMPRESSIONS</th>
+            <th class="text-center" >COST PER CLICK</th>
+            <th class="text-center" >TOTAL COST PER IMPRESSIONS</th>
+            <th class="text-center" >TOTAL COST PER CLICKS</th>
+            <th class="text-center" >TOTAL COST PER Day</th>
+            <th class="text-center">Status</th>
+            <th class="text-center">Action</th>
+
+          </tr>
+        </thead>
+        <tbody id="W">
+        
+        {% for i in rd %}
+        <tr style="font-size: 15px;">
+          <td>{{i.1}}</td>
+          <td>{{i.2}}</td>
+          <td style="width: 10%;">{{i.3}}</td>
+          <td>{{i.4}}</td>
+          <td>{{i.5}}</td>
+          <td>{{i.6}}</td>
+          <td>{{i.7}}</td>
+          <td>{{i.8}}</td>
+          <td>{{i.9}}</td>
+          <td>{{i.10}}</td>
+          {%if i.11 == 'Running' %}
+            <td style='font-size:15px;color:green'><b>{{i.11}}</td>
+          {%elif i.11 == 'Closed' %}
+            <td style='font-size:15px;color:red'><b>{{i.11}}</td>
+          {%else%}
+            <td style='font-size:15px;color:orange'><b>{{i.11}}</td>
+          {% endif %}
+          
+          <td style="width: 15%;">
+            <a href="/edit_report/{{i.0}}"><span class="btn btn-success">Edit</span></a>
+            <a href="/delete_report/{{i.0}}" class="btn btn-danger ml-3" onclick="return confirm('are you sure you want to delete ?')">Delete</a> 
+          </td>
+        </tr>
+        {% endfor %}
+    
+   
+        </tbody>
+      </table>
+      </form>
+
+      <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+      <script>
+        let latestData = ''
+          /*
+      function populateDependentDropdown() {
+          
+          console.log(JSON.parse('{{empcontext }}'))
+          var parentValue = document.getElementById('parentDropdown').value;
+          console.log(parentValue)
+  
+          let datasets = document.getElementById('data').textContent
+          datasets = datasets.replace(/\[|\]/g,'').split(',')
+          //console.log(datasets)
+          //console.log(typeof datasets[i])
+   
+          for (let i in datasets){
+              var jsonStr = datasets[i].replace(/(\w+:)|(\w+ :)/g, function(matchedStr) {
+                  return '"' + matchedStr.substring(0, matchedStr.length - 1) + '":';
+                });
+                
+  
+              console.log(typeof(jsonStr))
+      
+          }
+  
+      
+          // Make an AJAX request to fetch the dependent dropdown options
+          
+          var dependentDropdown = document.getElementById('dependentDropdown');
+          dependentDropdown.innerHTML = '';  // Clear previous options
+          // Populate the dependent dropdown options
+          
+          for (var i = 0; i < datasets.length; i++) {
+              var option = document.createElement('option');
+              option.value = options[i].id;
+              option.text = options[i].name;
+              dependentDropdown.appendChild(option);
+          } 
+        
+      }
+      */
+  
+      function populateDependentDropdown() {
+          var parentValue = document.getElementById('parentDropdown').value;
+          if (parentValue === 'all'){
+              document.getElementById('dependentDropdown').style.display = 'none';
+              $.ajax({
+                  url: '/fetch_data/',  // Replace with the URL that handles the AJAX request
+                  method: 'GET',
+                  data: { parentValue: parentValue},
+                  success: function(response) {
+                      latestData = response
+                      var tableBody = document.getElementById('W');
+                      tableBody.innerHTML = ''; // Clear the existing table rows
+                      
+  
+          // Iterate over the response data and create new table rows
+          for (var i = 0; i < response.length; i++) {
+              //console.log(response[i])
+            var rowData = response[i];
+            console.log(rowData[0])
+  
+            // Create a new table row
+            var row = document.createElement('tr');
+  
+            // Populate the table cells with the data
+            var cell1 = document.createElement('td');
+            cell1.textContent = rowData[1];
+            row.appendChild(cell1);
+  
+            var cell2 = document.createElement('td');
+            cell2.textContent = rowData[2];
+            row.appendChild(cell2);
+  
+            var cell3 = document.createElement('td');
+            cell3.textContent = rowData[3];
+            row.appendChild(cell3);
+  
+            var cell4 = document.createElement('td');
+            cell4.textContent = rowData[4];
+            row.appendChild(cell4);
+  
+            var cell5 = document.createElement('td');
+            cell5.textContent = rowData[5];
+            row.appendChild(cell5);
+  
+            var cell6 = document.createElement('td');
+            cell6.textContent = rowData[6];
+            row.appendChild(cell6);
+  
+            var cell7 = document.createElement('td');
+            cell7.textContent = rowData[7];
+            row.appendChild(cell7);
+  
+            var cell8 = document.createElement('td');
+            cell8.textContent = rowData[8];
+            row.appendChild(cell8);
+  
+            var cell9 = document.createElement('td');
+            cell9.textContent = rowData[9];
+            row.appendChild(cell9);
+  
+            var cell10 = document.createElement('td');
+            cell10.textContent = rowData[10];
+            row.appendChild(cell10);
+  
+            var cell11 = document.createElement('td');
+            cell11.textContent = rowData[11];
+           
+            
+            row.appendChild(cell11);
+  
+            var cell12 = document.createElement('td');
+            // Create the first link
+            var link1 = document.createElement('a');
+            link1.href = `/edit_report/${response[i][0]}`
+            //<a href="/delete_report/{{i.0}}" class="btn btn-danger ml-3" onclick="return confirm('are you sure you want to delete ?')">Delete</a> 
+            link1.textContent = 'Edit';
+            link1.style.color = 'blue'; // Set the color using inline styling
+            link1.style.textDecoration = 'underline'; // Set the text decoration using inline styling
+            cell12.appendChild(link1);
+      
+            // Add some spacing between the links
+            var spacing = document.createTextNode(' ');
+            cell12.appendChild(spacing);
+  
+            // Create the second link
+            var link2 = document.createElement('a');
+            link2.href = `/delete_report/${response[i][0]}`;
+            link2.textContent = 'Delete';
+            link2.style.color = 'red'; // Set the color using inline styling
+            link2.style.textDecoration = 'underline'; // Set the text decoration using inline styling
+            cell12.appendChild(link2);
+  
+            // Add the cell to the row
+            row.appendChild(cell12);
+  
+            
+            //cell12.textContent = rowData[12];
+            //row.appendChild(cell12);
+             
+  
+            // Add the new row to the table body
+            tableBody.appendChild(row);
+          }
+        },
+        error: function() {
+          // Handle error
+        }
+      });
+          }
+          else{
+              fetchData(parentValue,'')
+              document.getElementById('dependentDropdown').style.display = 'inline-block'
+      
+          // Make an AJAX request to fetch the dependent dropdown options
+          $.ajax({
+              url: '/fetch_dependent_options/',  // Replace with the URL that handles the AJAX request
+              method: 'GET',
+              data: { parentValue: parentValue },
+              success: function(response) {
+                  var dependentDropdown = document.getElementById('dependentDropdown');
+                  dependentDropdown.innerHTML = '';  // Clear previous options
+      
+                  // Parse the response as JSON
+                  var options = response;
+                  //console.log(options[0].campaign_name)
+      
+                  // Populate the dependent dropdown options
+                  for (var i = 0; i < options.length; i++) {
+                      var option = document.createElement('option');
+                      option.value = options[i].campaign_name;
+                      option.text = options[i].campaign_name
+                      dependentDropdown.appendChild(option);
+                  }
+              },
+              error: function() {
+                  // Handle error
+              }
+          });
+      }
+      }
+  
+      function fetchData(parentValue,dependValue) {
+          if (parentValue === '' && dependValue === ''){
+          parentValue  = document.getElementById('parentDropdown').value
+          dependValue = document.getElementById('dependentDropdown').value
+          }
+          //alert(parentValue)
+          $.ajax({
+              url: '/fetch_data/',  // Replace with the URL that handles the AJAX request
+              method: 'GET',
+              data: { parentValue: parentValue , dependValue:dependValue},
+              success: function(response) {
+                latestData = response
+                  console.log(response.length)
+                  if (response.length === 0){
+                      document.getElementById('example').style.display='none';
+                      document.getElementById('msg').style.display='block'
+                  }
+                  else{
+                      document.getElementById('example').style.display='block';
+                      document.getElementById('msg').style.display='none'
+                     var tableBody = document.getElementById('W');
+                      tableBody.innerHTML = ''; // Clear the existing table rows
+  
+          // Iterate over the response data and create new table rows
+          for (var i = 0; i < response.length; i++) {
+              //console.log(response[i])
+            var rowData = response[i];
+            console.log(rowData[0])
+  
+            // Create a new table row
+            var row = document.createElement('tr');
+  
+            // Populate the table cells with the data
+            var cell1 = document.createElement('td');
+            cell1.textContent = rowData[1];
+            row.appendChild(cell1);
+  
+            var cell2 = document.createElement('td');
+            cell2.textContent = rowData[2];
+            row.appendChild(cell2);
+  
+            var cell3 = document.createElement('td');
+            cell3.textContent = rowData[3];
+            row.appendChild(cell3);
+  
+            var cell4 = document.createElement('td');
+            cell4.textContent = rowData[4];
+            row.appendChild(cell4);
+  
+            var cell5 = document.createElement('td');
+            cell5.textContent = rowData[5];
+            row.appendChild(cell5);
+  
+            var cell6 = document.createElement('td');
+            cell6.textContent = rowData[6];
+            row.appendChild(cell6);
+  
+            var cell7 = document.createElement('td');
+            cell7.textContent = rowData[7];
+            row.appendChild(cell7);
+  
+            var cell8 = document.createElement('td');
+            cell8.textContent = rowData[8];
+            row.appendChild(cell8);
+  
+            var cell9 = document.createElement('td');
+            cell9.textContent = rowData[9];
+            row.appendChild(cell9);
+  
+            var cell10 = document.createElement('td');
+            cell10.textContent = rowData[10];
+            row.appendChild(cell10);
+  
+            var cell11 = document.createElement('td');
+            cell11.textContent = rowData[11];
+            console.log(typeof(rowData[11]))
+            if (rowData[11]  == 'Closed'){
+              cell11.style.fontWeight = 'bold'
+              cell11.style.color = 'Red';
+            }
+            else{
+              cell11.style.fontWeight = 'bold'
+              cell11.style.color = 'Green';
+            }
+            row.appendChild(cell11);
+  
+            var cell12 = document.createElement('td');
+            // Create the first link
+            var link1 = document.createElement('a');
+            link1.href = `/edit_report/${response[i][0]}`
+            //<a href="/delete_report/{{i.0}}" class="btn btn-danger ml-3" onclick="return confirm('are you sure you want to delete ?')">Delete</a> 
+            link1.textContent = 'Edit';
+            link1.style.color = 'blue'; // Set the color using inline styling
+            link1.style.textDecoration = 'underline'; // Set the text decoration using inline styling
+            cell12.appendChild(link1);
+      
+            // Add some spacing between the links
+            var spacing = document.createTextNode(' ');
+            cell12.appendChild(spacing);
+  
+            // Create the second link
+            var link2 = document.createElement('a');
+            link2.href = `/delete_report/${response[i][0]}`;
+            link2.textContent = 'Delete';
+            link2.style.color = 'red'; // Set the color using inline styling
+            link2.style.textDecoration = 'underline'; // Set the text decoration using inline styling
+  
+            link2.addEventListener('click', confirmDelete);
+  
+          // Define the confirmDelete function
+          function confirmDelete(event) {
+          event.preventDefault(); // Prevent the default behavior of the link
+  
+          var confirmation = confirm('Are you sure you want to delete?');
+          if (confirmation) {
+              // Proceed with the deletion logic
+              // You can redirect to the delete endpoint or perform any other action here
+              window.location.href = link2.href;
+          }
+          return false
+          }
+                  cell12.appendChild(link2);
+  
+            // Add the cell to the row
+            row.appendChild(cell12);
+  
+            // Add the new row to the table body
+            tableBody.appendChild(row);
+          }
+      }
+        },
+        error: function() {
+          // Handle error
+        }
+      });
+      }
+      
+      $(document).ready(function() {
+        var table = $('#example').DataTable();
+    
+        // Example data to be updated
+        var updatedData = latestData
+    
+        // Function to update the table data
+        function updateTableData(data) {
+            // Clear existing data
+            table.clear();
+    
+            // Add updated data
+            table.rows.add(data);
+    
+            // Redraw the table with updated data
+            table.draw();
+        }
+    
+        // Call the updateTableData function with the updated data
+        updateTableData(updatedData);
+    });
+      
+  </script>
+  <script src="https://ajax.googleapis/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script type="text/Javascript" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+  <script type="text/Javascript" src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+
+  <script>
+
+
+      
+      
+      //----------------------------------------------------------------
+
+
+     const startDateInput = document.getElementById("start-date");
+    const endDateInput = document.getElementById("end-date");
+
+startDateInput.addEventListener("change", () => {
+  const startDateValue = startDateInput.value;
+  endDateInput.min = startDateValue;
+});
+  var today = new Date().toISOString().split('T')[0];
+  document.getElementById("end-date").setAttribute("max", today);
+
+  console.log(document.getElementById("example").textContent)
+    $(document).ready(function () {
+      $('#example').DataTable();
+  });
+
+  
+</script>
+      
+      
+    {% endblock %}
+</body>
+</html>

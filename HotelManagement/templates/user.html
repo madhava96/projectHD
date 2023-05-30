@@ -1,0 +1,169 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Home Page</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.3/dist/jquery.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+  <style>
+    body{
+      background-image: url("{% static '\\images\4.jpg' %}");
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      background-size: cover;
+    }
+    .user{
+      font-size:30px;
+      color: aquamarine;
+    }
+    .content{
+      width:100%;
+      font-size:20px;
+      color:white;
+      text-align:center;
+    }
+  </style>
+</head>
+<body>
+{%if d == 'Manager' %}
+
+<nav class="navbar navbar-expand-sm navbar-dark bg-dark ">
+  
+  <!-- Links -->
+  
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'user' %}" style="color:white">HOME</a>
+    </li>
+
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'employeeform' %}" style="color:white">Employee Form</a>
+    </li>
+    
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'empdetails' %}" style="color:white">Employee Details</a>
+    </li>
+
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'show' %}" style="color:white">Room Availability</a>
+    </li>
+
+    <li class="nav-item">
+      <a class="nav-link" href="{% url 'book' %}" style="color:white">Room Booking</a>
+  </li>
+  </ul>
+
+  <ul class="navbar-nav ml-auto">
+    <li class="nav-item">
+      <span class='user'>Hi {{d}}&nbsp</span>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="{% url 'login' %}" style="color:white;" target="_self">Logout</a>
+    </li>
+    
+  </ul>
+</nav>
+{%elif d == 'Admin'%}
+<nav class="navbar navbar-expand-sm navbar-dark bg-dark ">
+  
+  <!-- Links -->
+  
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'user' %}" style="color:white">HOME</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'show' %}" style="color:white">Room Availability</a>
+    </li>
+  </ul>
+
+  <ul class="navbar-nav ml-auto">
+    <li class="nav-item">
+      <span class='user'>Hi {{d}}&nbsp</span>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="{% url 'login' %}" style="color:white;" target="_self">Logout</a>
+    </li>
+    
+  </ul>
+</nav>
+{%elif d == 'Receptionist'%}
+<nav class="navbar navbar-expand-sm navbar-dark bg-dark ">
+  
+  <!-- Links -->
+ 
+  
+  <ul class="navbar-nav mr-auto">
+    <li class="nav-item">
+      <a class="nav-link" href="{% url 'user' %}" style="color:white">HOME</a>
+  </li>
+    <li class="nav-item">
+      <a class="nav-link" href="{% url 'show' %}" style="color:white">Room Availability</a>
+  </li>
+
+  <li class="nav-item">
+    <a class="nav-link" href="{% url 'book' %}" style="color:white">Room Booking</a>
+</li>
+
+  </ul>
+
+  <ul class="navbar-nav ml-auto">
+    <li class="nav-item">
+      <span class='user'>Hi {{d}}&nbsp</span>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="{% url 'login' %}" style="color:white;" target="_self">Logout</a>
+    </li>
+    
+  </ul>
+</nav>
+{%else%}
+<nav>
+  <p>Please Login First</p>
+</nav>
+
+{%endif%}
+<div class='content' style='flex'>
+<b>Hotel CICILY</b> is<br>
+a new Hotel, located in the center of Pristina. Our Hotel has five floors, with<br>
+50 room’s furnished carefully and decorated with elegance. Hotel offers<br>
+professional services for all guests, luxury rooms and all the rooms . Our<br>
+Hotel has a swimming pool,gym, parking, elevator, meeting and event room,<br>
+garden and terrace.<br>
+<br>
+<br>
+For the traveler open to possibilities, CICILY Hotels is<br>
+a modern, fresh, and fun destination. CICILY is a hotel that celebrates the<br>
+individual and gives you freedom to control and customize your travel adventure<br>
+to fit your personal style. It is a place where walls have been knocked down to<br>
+create a space that is open in design and open to possibilities. A place where<br>
+energy flows, personalities mingle, and opportunities abound. A place where<br>
+anything can happen.<br>
+<br>
+<br>
+Hotel CICILY promotes balance through flowing,<br>
+multi-purpose spaces. Influenced by nature, the smart, environmentally-friendly<br>
+design maximizes space and enables you to use each area in multiple ways.<br>
+<br>
+<br>
+We believe it’s important for you to achieve a sense of<br>
+balance – particularly while traveling for extended periods. By stimulating the<br>
+senses and soothing the spirit,Cicily helps you relax and refresh, so you can<br>
+get back to your best self.<br>
+<br>
+<br>
+With its open social areas and relaxing guest rooms,<br>
+Cicily serves as a personal retreat from the stresses of travel. So whether you<br>
+are here for days or weeks, business or fun, you have an experience that<br>
+enables you to grow, prosper and flourish.<br>
+</div>
+
+
+
+
+</body>
+</html>
